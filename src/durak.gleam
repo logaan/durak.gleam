@@ -1,5 +1,5 @@
 import gleam/io
-import gleam/list.{drop, flat_map, last, map, shuffle, take}
+import gleam/list.{drop, flat_map, last, map, shuffle, split, take}
 
 pub type Value {
   Ace
@@ -36,28 +36,28 @@ pub fn new_deck() {
 
 pub type Game {
   TwoPlayerGame(
-    player1: List(Card),
-    player2: List(Card),
+    players: List(List(Card)),
     // Talon is another word for deck / library
     talon: List(Card),
     // We keep track of the trump suit even after the turnup has been found
     trump: Suit,
+    attacker: Int,
   )
 }
 
 pub fn new_game() {
   let deck = new_deck()
+
+  let #(first_hand, deck) = split(deck, 6)
+  let #(second_hand, deck) = split(deck, 6)
+
   let assert Ok(last_card) = last(deck)
 
   TwoPlayerGame(
-    player1: deck
-    |> take(6),
-    player2: deck
-    |> drop(6)
-    |> take(6),
-    talon: deck
-    |> drop(12),
+    players: [first_hand, second_hand],
+    talon: deck,
     trump: last_card.suit,
+    attacker: 0,
   )
 }
 
