@@ -47,8 +47,8 @@ pub fn new_deck() {
   )
 }
 
-pub type AttackingCards =
-  set.Set(Card)
+type Attack =
+  dict.Dict(Card, option.Option(Card))
 
 pub type Game {
   TwoPlayerGame(
@@ -56,7 +56,7 @@ pub type Game {
     trump: Suit,
     attacker: Player,
     defender: Player,
-    attack: AttackingCards,
+    attack: Attack,
   )
 }
 
@@ -71,7 +71,7 @@ pub fn new_game(deck: Deck) {
     trump: last_card.suit,
     attacker: set.from_list(first_hand),
     defender: set.from_list(second_hand),
-    attack: set.new(),
+    attack: dict.new(),
   )
 }
 
@@ -79,7 +79,7 @@ pub fn attack(game: Game, card: Card) {
   TwoPlayerGame(
     ..game,
     attacker: set.delete(game.attacker, card),
-    attack: set.insert(game.attack, card),
+    attack: dict.insert(game.attack, card, option.None),
   )
 }
 
