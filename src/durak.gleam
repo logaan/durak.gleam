@@ -3,6 +3,7 @@ import gleam/list
 import gleam/set
 import gleam/option
 import gleam/dict
+import gleam/order
 
 pub type Value {
   Ace
@@ -89,33 +90,58 @@ pub fn attack(game: Game, card: Card) {
   }
 }
 
+// At a high level this funtion should:
+// 1. Check that `against` is present in the attack
+// 2. Check that `with` is in the defender's hand
+// 3. TODO Check that `with` beats `against`
+// 4. Update the game
 pub fn defend(game: Game, against: Card, with: Card) {
-  case dict.has_key(game.attack, against) {
-    True ->
-      case set.contains(game.defender, with) {
-        True ->
-          Ok(
-            TwoPlayerGame(
-              ..game,
-              defender: set.delete(game.defender, with),
-              attack: dict.insert(game.attack, against, option.Some(with)),
-            ),
-          )
-        False -> Error("The defender does not have that card")
-      }
-    False -> Error("That card is not present in the attack")
+  let attack_has_card = dict.has_key(game.attack, against)
+  let defender_has_card = set.contains(game.defender, with)
+
+  case attack_has_card, defender_has_card {
+    False, _ -> Error("That card is not present in the attack")
+    _, False -> Error("The defender does not have that card")
+    True, True ->
+      Ok(
+        TwoPlayerGame(
+          ..game,
+          defender: set.delete(game.defender, with),
+          attack: dict.insert(game.attack, against, option.Some(with)),
+        ),
+      )
   }
+}
+
+fn count_index(of needle: a, in haystack: List(a), having seen: Int) {
+  case haystack {
+    [] -> Error("Needle was not found in haystack")
+    [head, ..] if head == needle -> Ok(seen)
+    [_, ..tail] -> count_index(of: needle, in: tail, having: seen + 1)
+  }
+}
+
+fn index(of needle: a, in haystack: List(a)) {
+  count_index(0, of: needle, in: haystack)
 }
 
 pub fn main() {
   let deck = new_deck()
   let game = new_game(deck)
   io.debug(game)
+
   io.debug("")
 
   let assert Ok(game) = attack(game, Card(Ace, Spades))
   io.debug(game)
 
+  io.debug("")
+
   let assert Ok(game) = defend(game, Card(Ace, Spades), Card(Eight, Spades))
   io.debug(game)
+
+  let assert Ok(0) = index(of: "a", in: ["a", "b", "c"])
+  let assert Ok(1) = index(of: "b", in: ["a", "b", "c"])
+  let assert Ok(2) = index(of: "c", in: ["a", "b", "c"])
+  let assert Error(_) = index(of: "d", in: ["a", "b", "c"])
 }
