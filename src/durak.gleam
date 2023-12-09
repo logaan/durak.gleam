@@ -3,50 +3,13 @@ import gleam/list
 import gleam/set
 import gleam/option
 import gleam/dict
-import gleam/order
-
-pub type Value {
-  Ace
-  King
-  Queen
-  Jack
-  Ten
-  Nine
-  Eight
-  Seven
-  Six
-}
-
-pub type Suit {
-  Spades
-  Clubs
-  Hearts
-  Diamonds
-}
-
-pub type Card {
-  Card(value: Value, suit: Suit)
-}
-
-pub type Deck =
-  List(Card)
+import deck.{type Card, type Deck, type Suit, Card}
 
 pub type Hand =
   set.Set(Card)
 
 pub type Player =
   Hand
-
-const suits = [Spades, Clubs, Hearts, Diamonds]
-
-const values = [Ace, King, Queen, Jack, Ten, Nine, Eight, Seven, Six]
-
-pub fn new_deck() {
-  list.flat_map(
-    suits,
-    fn(suit) { list.map(values, fn(value) { Card(value, suit) }) },
-  )
-}
 
 type Attack =
   dict.Dict(Card, option.Option(Card))
@@ -126,22 +89,18 @@ fn index(of needle: a, in haystack: List(a)) {
 }
 
 pub fn main() {
-  let deck = new_deck()
+  let deck = deck.new_deck()
   let game = new_game(deck)
-  io.debug(game)
 
-  io.debug("")
+  let assert Ok(game) = attack(game, Card(deck.Ace, deck.Spades))
 
-  let assert Ok(game) = attack(game, Card(Ace, Spades))
-  io.debug(game)
-
-  io.debug("")
-
-  let assert Ok(game) = defend(game, Card(Ace, Spades), Card(Eight, Spades))
-  io.debug(game)
+  let assert Ok(_) =
+    defend(game, Card(deck.Ace, deck.Spades), Card(deck.Eight, deck.Spades))
 
   let assert Ok(0) = index(of: "a", in: ["a", "b", "c"])
   let assert Ok(1) = index(of: "b", in: ["a", "b", "c"])
   let assert Ok(2) = index(of: "c", in: ["a", "b", "c"])
   let assert Error(_) = index(of: "d", in: ["a", "b", "c"])
+
+  io.debug("Ok")
 }
