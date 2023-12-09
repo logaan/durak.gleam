@@ -1,5 +1,8 @@
 import gleam/io
-import gleam/list.{drop, flat_map, last, map, shuffle, split, take}
+import gleam/list
+import gleam/set
+import gleam/option
+import gleam/dict
 
 pub type Value {
   Ace
@@ -24,43 +27,68 @@ pub type Card {
   Card(value: Value, suit: Suit)
 }
 
+pub type Deck =
+  List(Card)
+
+pub type Hand =
+  set.Set(Card)
+
+pub type Player =
+  Hand
+
 const suits = [Spades, Clubs, Hearts, Diamonds]
 
 const values = [Ace, King, Queen, Jack, Ten, Nine, Eight, Seven, Six]
 
 pub fn new_deck() {
-  suits
-  |> flat_map(fn(suit) { map(values, fn(value) { Card(value, suit) }) })
-  |> shuffle()
-}
-
-pub type Game {
-  TwoPlayerGame(
-    players: List(List(Card)),
-    // Talon is another word for deck / library
-    talon: List(Card),
-    // We keep track of the trump suit even after the turnup has been found
-    trump: Suit,
-    attacker: Int,
+  list.flat_map(
+    suits,
+    fn(suit) { list.map(values, fn(value) { Card(value, suit) }) },
   )
 }
 
-pub fn new_game() {
-  let deck = new_deck()
+pub type AttackingCards =
+  set.Set(Card)
 
-  let #(first_hand, deck) = split(deck, 6)
-  let #(second_hand, deck) = split(deck, 6)
+pub type Game {
+  TwoPlayerGame(
+    talon: Deck,
+    trump: Suit,
+    attacker: Player,
+    defender: Player,
+    attack: AttackingCards,
+  )
+}
 
-  let assert Ok(last_card) = last(deck)
+pub fn new_game(deck: Deck) {
+  let #(first_hand, deck) = list.split(deck, 6)
+  let #(second_hand, deck) = list.split(deck, 6)
+
+  let assert Ok(last_card) = list.last(deck)
 
   TwoPlayerGame(
-    players: [first_hand, second_hand],
     talon: deck,
     trump: last_card.suit,
-    attacker: 0,
+    attacker: set.from_list(first_hand),
+    defender: set.from_list(second_hand),
+    attack: set.new(),
+  )
+}
+
+pub fn attack(game: Game, card: Card) {
+  TwoPlayerGame(
+    ..game,
+    attacker: set.delete(game.attacker, card),
+    attack: set.insert(game.attack, card),
   )
 }
 
 pub fn main() {
-  io.debug(new_game())
+  let deck = new_deck()
+  let game = new_game(deck)
+  io.debug(game)
+  io.debug("")
+
+  let game = attack(game, Card(Ace, Spades))
+  io.debug(game)
 }
