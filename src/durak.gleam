@@ -76,11 +76,35 @@ pub fn new_game(deck: Deck) {
 }
 
 pub fn attack(game: Game, card: Card) {
-  TwoPlayerGame(
-    ..game,
-    attacker: set.delete(game.attacker, card),
-    attack: dict.insert(game.attack, card, option.None),
-  )
+  case set.contains(game.attacker, card) {
+    True ->
+      Ok(
+        TwoPlayerGame(
+          ..game,
+          attacker: set.delete(game.attacker, card),
+          attack: dict.insert(game.attack, card, option.None),
+        ),
+      )
+    False -> Error("The attacker does not have that card")
+  }
+}
+
+pub fn defend(game: Game, against: Card, with: Card) {
+  case dict.has_key(game.attack, against) {
+    True ->
+      case set.contains(game.defender, with) {
+        True ->
+          Ok(
+            TwoPlayerGame(
+              ..game,
+              defender: set.delete(game.defender, with),
+              attack: dict.insert(game.attack, against, option.Some(with)),
+            ),
+          )
+        False -> Error("The defender does not have that card")
+      }
+    False -> Error("That card is not present in the attack")
+  }
 }
 
 pub fn main() {
@@ -89,6 +113,9 @@ pub fn main() {
   io.debug(game)
   io.debug("")
 
-  let game = attack(game, Card(Ace, Spades))
+  let assert Ok(game) = attack(game, Card(Ace, Spades))
+  io.debug(game)
+
+  let assert Ok(game) = defend(game, Card(Ace, Spades), Card(Eight, Spades))
   io.debug(game)
 }
