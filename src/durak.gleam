@@ -5,6 +5,7 @@ import gleam/option
 import gleam/dict
 import deck.{type Card, type Deck, type Suit, Card}
 import util/list as ulist
+import gleam/result.{then}
 
 pub type Hand =
   set.Set(Card)
@@ -49,21 +50,26 @@ pub fn new_game(deck: Deck) {
   ))
 }
 
+fn attacker_has_card(game: Game, card: Card) {
+  case set.contains(game.attacker, card) {
+    False -> Error("The attacker does not have that card")
+    True -> Ok(game)
+  }
+}
+
 pub fn attack(game_state: FirstAttack, card: Card) {
   let FirstAttack(game) = game_state
-  let attacker_has_card = set.contains(game.attacker, card)
 
-  case attacker_has_card {
-    False -> Error("The attacker does not have that card")
-    True ->
-      Ok(Defend(
-        TwoPlayerGame(
-          ..game,
-          attacker: set.delete(game.attacker, card),
-          attack: dict.insert(game.attack, card, option.None),
-        ),
-      ))
-  }
+  attacker_has_card(game, card)
+  |> then(fn(game) {
+    Ok(Defend(
+      TwoPlayerGame(
+        ..game,
+        attacker: set.delete(game.attacker, card),
+        attack: dict.insert(game.attack, card, option.None),
+      ),
+    ))
+  })
 }
 
 fn values_already_out(game: Game) {
@@ -81,26 +87,30 @@ fn values_already_out(game: Game) {
   )
 }
 
-pub fn subsiquent_attack(game_state: SubsiquentAttack, card: Card) {
-  let SubsiquentAttack(game) = game_state
-  let attacker_has_card = set.contains(game.attacker, card)
-  let card_is_already_out = set.contains(values_already_out(game), card.value)
-
-  case attacker_has_card, card_is_already_out {
-    False, _ -> Error("The attacker does not have that card")
-    _, False ->
+fn card_is_already_out(game: Game, card: Card) {
+  case set.contains(values_already_out(game), card.value) {
+    False ->
       Error(
         "The attacking card has not previously been used to attack or defend",
       )
-    True, True ->
-      Ok(Defend(
-        TwoPlayerGame(
-          ..game,
-          attacker: set.delete(game.attacker, card),
-          attack: dict.insert(game.attack, card, option.None),
-        ),
-      ))
+    True -> Ok(game)
   }
+}
+
+pub fn subsiquent_attack(game_state: SubsiquentAttack, card: Card) {
+  let SubsiquentAttack(game) = game_state
+
+  attacker_has_card(game, card)
+  |> then(card_is_already_out(_, card))
+  |> then(fn(game) {
+    Ok(Defend(
+      TwoPlayerGame(
+        ..game,
+        attacker: set.delete(game.attacker, card),
+        attack: dict.insert(game.attack, card, option.None),
+      ),
+    ))
+  })
 }
 
 pub fn defend(game_state: Defend, against: Card, with: Card) {
