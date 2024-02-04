@@ -11,3 +11,14 @@ gleam run   # Run the project
 gleam test  # Run the tests
 gleam shell # Run an Erlang shell
 ```
+
+## Todo
+
+- [x] Deal
+- [x] First attack
+- [x] Defend
+- [x] Further attacks
+- [ ] Find a better way to do validations
+- [ ] No attacks past 6
+- [ ] End turn
+- [ ] Start next turn
