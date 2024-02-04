@@ -18,7 +18,8 @@ gleam shell # Run an Erlang shell
 - [x] First attack
 - [x] Defend
 - [x] Further attacks
-- [ ] Find a better way to do validations
+- [x] Find a better way to do validations
+- [ ] Seperate transformations from rules
 - [ ] No attacks past 6
 - [ ] End turn
 - [ ] Start next turn

@@ -113,25 +113,42 @@ pub fn subsiquent_attack(game_state: SubsiquentAttack, card: Card) {
   })
 }
 
+fn attack_has_card(game: Game, card: Card) {
+  case dict.has_key(game.attack, card) {
+    False -> Error("That card is not present in the attack")
+    True -> Ok(game)
+  }
+}
+
+fn defender_has_card(game: Game, card: Card) {
+  case set.contains(game.defender, card) {
+    False -> Error("The defender does not have that card")
+    True -> Ok(game)
+  }
+}
+
+fn defence_beats_attack(game: Game, against: Card, with: Card) {
+  case deck.beats(with, against, game.trump) {
+    False -> Error("The defence does not beat the attack")
+    True -> Ok(game)
+  }
+}
+
 pub fn defend(game_state: Defend, against: Card, with: Card) {
   let Defend(game) = game_state
-  let attack_has_card = dict.has_key(game.attack, against)
-  let defender_has_card = set.contains(game.defender, with)
-  let defence_beats_attack = deck.beats(with, against, game.trump)
 
-  case attack_has_card, defender_has_card, defence_beats_attack {
-    False, _, _ -> Error("That card is not present in the attack")
-    _, False, _ -> Error("The defender does not have that card")
-    _, _, False -> Error("The defence does not beat the attack")
-    True, True, True ->
-      Ok(SubsiquentAttack(
-        TwoPlayerGame(
-          ..game,
-          defender: set.delete(game.defender, with),
-          attack: dict.insert(game.attack, against, option.Some(with)),
-        ),
-      ))
-  }
+  attack_has_card(game, against)
+  |> then(defender_has_card(_, with))
+  |> then(defence_beats_attack(_, against, with))
+  |> then(fn(game) {
+    Ok(SubsiquentAttack(
+      TwoPlayerGame(
+        ..game,
+        defender: set.delete(game.defender, with),
+        attack: dict.insert(game.attack, against, option.Some(with)),
+      ),
+    ))
+  })
 }
 
 pub fn main() {
