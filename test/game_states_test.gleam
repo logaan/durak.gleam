@@ -11,11 +11,16 @@ import gleam/dict
 import gleam/option.{None, Some}
 
 pub fn example_game_test() {
-  deck.new_deck()
-  |> start_game()
+  let deck = deck.new_deck()
+
+  start_game(deck)
   |> start_attack(Card(deck.Ten, deck.Spades))
   |> then(fn(game) {
-    defend(game, Card(deck.Ten, deck.Spades), Card(deck.Ace, deck.Clubs))
+    defend(
+      in: game,
+      against: Card(deck.Ten, deck.Spades),
+      with: Card(deck.Ace, deck.Clubs),
+    )
   })
   |> then(fn(game) { join_attack(game, Card(deck.Ace, deck.Spades)) })
   |> should.equal(Ok(Defend(TwoPlayerGame(
@@ -53,7 +58,6 @@ pub fn example_game_test() {
       Card(Queen, Spades),
     ]),
     set.from_list([
-      Card(Ace, Clubs),
       Card(Eight, Spades),
       Card(King, Clubs),
       Card(Queen, Clubs),
@@ -61,9 +65,8 @@ pub fn example_game_test() {
       Card(Six, Spades),
     ]),
     dict.from_list([
-      #(Card(Ace, Clubs), Some(Card(Ten, Spades))),
       #(Card(Ace, Spades), None),
-      #(Card(Ten, Spades), None),
+      #(Card(Ten, Spades), Some(Card(Ace, Clubs))),
     ]),
   ))))
 }

@@ -33,9 +33,19 @@ pub fn join_attack(game_state: JoinAttack, card: Card) {
   |> v.then(fn() { Defend(game.move_card_to_attack(game, card)) })
 }
 
-pub fn defend(game_state: Defend, against: Card, with: Card) {
+pub fn defend(
+  in game_state: Defend,
+  against attacking: Card,
+  with defending: Card,
+) {
   let Defend(game) = game_state
 
-  rules.can_defend(game, against, with)
-  |> v.then(fn() { JoinAttack(game.move_card_to_defend(game, against, with)) })
+  rules.can_defend(game, against: attacking, with: defending)
+  |> v.then(fn() {
+    JoinAttack(game.move_card_to_defend(
+      game,
+      against: attacking,
+      with: defending,
+    ))
+  })
 }

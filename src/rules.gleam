@@ -26,8 +26,11 @@ pub fn can_join_attack(game: Game, with: Card) {
   )
 }
 
-pub fn can_defend(game: Game, against: Card, with: Card) {
-  v.check(target_in_attack, dict.has_key(game.attack, against))
-  |> v.and(defender_has_card, fn() { set.contains(game.defender, with) })
-  |> v.and(defence_beats_attack, fn() { deck.beats(with, against, game.trump) })
+pub fn can_defend(in game: Game, against attacking: Card, with defending: Card) {
+  v.check(target_in_attack, dict.has_key(game.attack, attacking))
+  |> v.and(defender_has_card, fn() { set.contains(game.defender, defending) })
+  |> v.and(
+    defence_beats_attack,
+    fn() { deck.beats(defending, attacking, game.trump) },
+  )
 }

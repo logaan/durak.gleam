@@ -43,11 +43,15 @@ pub fn move_card_to_attack(game: Game, card: Card) {
   )
 }
 
-pub fn move_card_to_defend(game: Game, with: Card, against: Card) {
+pub fn move_card_to_defend(
+  in game: Game,
+  with defending: Card,
+  against attacking: Card,
+) {
   TwoPlayerGame(
     ..game,
-    defender: set.delete(game.defender, with),
-    attack: dict.insert(game.attack, against, option.Some(with)),
+    defender: set.delete(game.defender, defending),
+    attack: dict.insert(game.attack, attacking, option.Some(defending)),
   )
 }
 
