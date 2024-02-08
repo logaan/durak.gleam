@@ -15,7 +15,7 @@ pub type JoinAttack {
   JoinAttack(Game)
 }
 
-pub fn new_game(deck: Deck) {
+pub fn start_game(deck: Deck) {
   StartAttack(game.new_game(deck))
 }
 
@@ -26,7 +26,6 @@ pub fn start_attack(game_state: StartAttack, card: Card) {
   |> v.then(fn() { Defend(game.move_card_to_attack(game, card)) })
 }
 
-// TODO: Rename to join attack
 pub fn join_attack(game_state: JoinAttack, card: Card) {
   let JoinAttack(game) = game_state
 
