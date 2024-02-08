@@ -1,27 +1,14 @@
 import gleam/io
 import gleam/list
 import gleam/set
-import gleam/option
+import gleam/option.{None, Some}
 import gleam/dict
-import deck.{type Card, type Deck, type Suit, Card}
+import deck.{type Card, type Deck, Card}
+import game.{type Game, TwoPlayerGame}
 import util/list as ulist
 import gleam/result.{then}
-
-pub type Hand =
-  set.Set(Card)
-
-type Attack =
-  dict.Dict(Card, option.Option(Card))
-
-pub type Game {
-  TwoPlayerGame(
-    talon: Deck,
-    trump: Suit,
-    attacker: Hand,
-    defender: Hand,
-    attack: Attack,
-  )
-}
+import util/validate as v
+import rules
 
 pub type FirstAttack {
   FirstAttack(Game)
@@ -80,8 +67,8 @@ fn values_already_out(game: Game) {
       let already_out = set.insert(already_out, key.value)
 
       case value {
-        option.None -> already_out
-        option.Some(card) -> set.insert(already_out, card.value)
+        None -> already_out
+        Some(card) -> set.insert(already_out, card.value)
       }
     },
   )
@@ -113,42 +100,19 @@ pub fn subsiquent_attack(game_state: SubsiquentAttack, card: Card) {
   })
 }
 
-fn attack_has_card(game: Game, card: Card) {
-  case dict.has_key(game.attack, card) {
-    False -> Error("That card is not present in the attack")
-    True -> Ok(game)
-  }
-}
-
-fn defender_has_card(game: Game, card: Card) {
-  case set.contains(game.defender, card) {
-    False -> Error("The defender does not have that card")
-    True -> Ok(game)
-  }
-}
-
-fn defence_beats_attack(game: Game, against: Card, with: Card) {
-  case deck.beats(with, against, game.trump) {
-    False -> Error("The defence does not beat the attack")
-    True -> Ok(game)
-  }
+fn move_card_to_defend(game: Game, with: Card, against: Card) {
+  TwoPlayerGame(
+    ..game,
+    defender: set.delete(game.defender, with),
+    attack: dict.insert(game.attack, against, option.Some(with)),
+  )
 }
 
 pub fn defend(game_state: Defend, against: Card, with: Card) {
   let Defend(game) = game_state
 
-  attack_has_card(game, against)
-  |> then(defender_has_card(_, with))
-  |> then(defence_beats_attack(_, against, with))
-  |> then(fn(game) {
-    Ok(SubsiquentAttack(
-      TwoPlayerGame(
-        ..game,
-        defender: set.delete(game.defender, with),
-        attack: dict.insert(game.attack, against, option.Some(with)),
-      ),
-    ))
-  })
+  rules.can_defend(game, against, with)
+  |> v.then(fn() { SubsiquentAttack(move_card_to_defend(game, against, with)) })
 }
 
 pub fn main() {
