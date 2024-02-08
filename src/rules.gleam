@@ -1,4 +1,4 @@
-import game.{type Game}
+import game.{type Game, values_already_out}
 import deck.{type Card}
 import gleam/dict
 import gleam/set
@@ -12,8 +12,18 @@ const defence_beats_attack = "The defence does not beat the attack"
 
 const attacker_has_card = "The attacker does not have that card"
 
+const card_is_already_out = "The attacking card has not previously been used to attack or defend"
+
 pub fn can_first_attack(game: Game, with: Card) {
   v.check(attacker_has_card, set.contains(game.attacker, with))
+}
+
+pub fn can_join_attack(game: Game, with: Card) {
+  v.check(attacker_has_card, set.contains(game.attacker, with))
+  |> v.and(
+    card_is_already_out,
+    fn() { set.contains(values_already_out(game), with.value) },
+  )
 }
 
 pub fn can_defend(game: Game, against: Card, with: Card) {

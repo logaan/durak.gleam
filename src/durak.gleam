@@ -1,9 +1,5 @@
-import gleam/set
-import gleam/option.{None, Some}
-import gleam/dict
 import deck.{type Card, type Deck, Card}
-import game.{type Game, TwoPlayerGame}
-import gleam/result.{then}
+import game.{type Game}
 import util/validate as v
 import rules
 
@@ -23,6 +19,7 @@ pub fn new_game(deck: Deck) {
   FirstAttack(game.new_game(deck))
 }
 
+// TODO: Rename to start attack
 pub fn attack(game_state: FirstAttack, card: Card) {
   let FirstAttack(game) = game_state
 
@@ -30,45 +27,12 @@ pub fn attack(game_state: FirstAttack, card: Card) {
   |> v.then(fn() { Defend(game.move_card_to_attack(game, card)) })
 }
 
-fn values_already_out(game: Game) {
-  dict.fold(
-    over: game.attack,
-    from: set.new(),
-    with: fn(already_out, key, value) {
-      let already_out = set.insert(already_out, key.value)
-
-      case value {
-        None -> already_out
-        Some(card) -> set.insert(already_out, card.value)
-      }
-    },
-  )
-}
-
-fn card_is_already_out(game: Game, card: Card) {
-  case set.contains(values_already_out(game), card.value) {
-    False ->
-      Error(
-        "The attacking card has not previously been used to attack or defend",
-      )
-    True -> Ok(game)
-  }
-}
-
+// TODO: Rename to join attack
 pub fn subsiquent_attack(game_state: SubsiquentAttack, card: Card) {
   let SubsiquentAttack(game) = game_state
 
-  attacker_has_card(game, card)
-  |> then(card_is_already_out(_, card))
-  |> then(fn(game) {
-    Ok(Defend(
-      TwoPlayerGame(
-        ..game,
-        attacker: set.delete(game.attacker, card),
-        attack: dict.insert(game.attack, card, option.None),
-      ),
-    ))
-  })
+  rules.can_join_attack(game, card)
+  |> v.then(fn() { Defend(game.move_card_to_attack(game, card)) })
 }
 
 pub fn defend(game_state: Defend, against: Card, with: Card) {
