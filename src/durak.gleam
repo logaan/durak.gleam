@@ -1,11 +1,9 @@
-import gleam/io
 import gleam/list
 import gleam/set
 import gleam/option.{None, Some}
 import gleam/dict
 import deck.{type Card, type Deck, Card}
 import game.{type Game, TwoPlayerGame}
-import util/list as ulist
 import gleam/result.{then}
 import util/validate as v
 import rules
@@ -113,21 +111,4 @@ pub fn defend(game_state: Defend, against: Card, with: Card) {
 
   rules.can_defend(game, against, with)
   |> v.then(fn() { SubsiquentAttack(move_card_to_defend(game, against, with)) })
-}
-
-pub fn main() {
-  let deck = deck.new_deck()
-  let game = new_game(deck)
-
-  let assert Ok(game) = attack(game, Card(deck.Ten, deck.Spades))
-
-  let assert Ok(game) =
-    defend(game, Card(deck.Ten, deck.Spades), Card(deck.Ace, deck.Clubs))
-
-  let assert Ok(_) = subsiquent_attack(game, Card(deck.Ace, deck.Spades))
-
-  io.debug("Ok")
-
-  let _ = ulist.test()
-  let _ = deck.test()
 }
