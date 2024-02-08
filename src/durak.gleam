@@ -1,4 +1,3 @@
-import gleam/list
 import gleam/set
 import gleam/option.{None, Some}
 import gleam/dict
@@ -21,40 +20,14 @@ pub type SubsiquentAttack {
 }
 
 pub fn new_game(deck: Deck) {
-  let #(first_hand, deck) = list.split(deck, 6)
-  let #(second_hand, deck) = list.split(deck, 6)
-
-  let assert Ok(last_card) = list.last(deck)
-
-  FirstAttack(TwoPlayerGame(
-    talon: deck,
-    trump: last_card.suit,
-    attacker: set.from_list(first_hand),
-    defender: set.from_list(second_hand),
-    attack: dict.new(),
-  ))
-}
-
-fn attacker_has_card(game: Game, card: Card) {
-  case set.contains(game.attacker, card) {
-    False -> Error("The attacker does not have that card")
-    True -> Ok(game)
-  }
+  FirstAttack(game.new_game(deck))
 }
 
 pub fn attack(game_state: FirstAttack, card: Card) {
   let FirstAttack(game) = game_state
 
-  attacker_has_card(game, card)
-  |> then(fn(game) {
-    Ok(Defend(
-      TwoPlayerGame(
-        ..game,
-        attacker: set.delete(game.attacker, card),
-        attack: dict.insert(game.attack, card, option.None),
-      ),
-    ))
-  })
+  rules.can_first_attack(game, card)
+  |> v.then(fn() { Defend(game.move_card_to_attack(game, card)) })
 }
 
 fn values_already_out(game: Game) {
@@ -98,17 +71,11 @@ pub fn subsiquent_attack(game_state: SubsiquentAttack, card: Card) {
   })
 }
 
-fn move_card_to_defend(game: Game, with: Card, against: Card) {
-  TwoPlayerGame(
-    ..game,
-    defender: set.delete(game.defender, with),
-    attack: dict.insert(game.attack, against, option.Some(with)),
-  )
-}
-
 pub fn defend(game_state: Defend, against: Card, with: Card) {
   let Defend(game) = game_state
 
   rules.can_defend(game, against, with)
-  |> v.then(fn() { SubsiquentAttack(move_card_to_defend(game, against, with)) })
+  |> v.then(fn() {
+    SubsiquentAttack(game.move_card_to_defend(game, against, with))
+  })
 }
