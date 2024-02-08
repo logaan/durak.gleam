@@ -11,8 +11,8 @@ pub type Defend {
   Defend(Game)
 }
 
-pub type SubsiquentAttack {
-  SubsiquentAttack(Game)
+pub type JoinAttack {
+  JoinAttack(Game)
 }
 
 pub fn new_game(deck: Deck) {
@@ -27,8 +27,8 @@ pub fn start_attack(game_state: StartAttack, card: Card) {
 }
 
 // TODO: Rename to join attack
-pub fn subsiquent_attack(game_state: SubsiquentAttack, card: Card) {
-  let SubsiquentAttack(game) = game_state
+pub fn join_attack(game_state: JoinAttack, card: Card) {
+  let JoinAttack(game) = game_state
 
   rules.can_join_attack(game, card)
   |> v.then(fn() { Defend(game.move_card_to_attack(game, card)) })
@@ -38,7 +38,5 @@ pub fn defend(game_state: Defend, against: Card, with: Card) {
   let Defend(game) = game_state
 
   rules.can_defend(game, against, with)
-  |> v.then(fn() {
-    SubsiquentAttack(game.move_card_to_defend(game, against, with))
-  })
+  |> v.then(fn() { JoinAttack(game.move_card_to_defend(game, against, with)) })
 }

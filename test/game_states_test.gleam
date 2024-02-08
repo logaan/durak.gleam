@@ -4,7 +4,7 @@ import deck.{
   Spades, Ten,
 }
 import game.{TwoPlayerGame}
-import game_states.{Defend, defend, new_game, start_attack, subsiquent_attack}
+import game_states.{Defend, defend, join_attack, new_game, start_attack}
 import gleam/result.{then}
 import gleam/set
 import gleam/dict
@@ -17,7 +17,7 @@ pub fn example_game_test() {
   |> then(fn(game) {
     defend(game, Card(deck.Ten, deck.Spades), Card(deck.Ace, deck.Clubs))
   })
-  |> then(fn(game) { subsiquent_attack(game, Card(deck.Ace, deck.Spades)) })
+  |> then(fn(game) { join_attack(game, Card(deck.Ace, deck.Spades)) })
   |> should.equal(Ok(Defend(TwoPlayerGame(
     [
       Card(Jack, Clubs),
