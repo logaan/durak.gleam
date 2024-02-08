@@ -1,10 +1,5 @@
-import gleeunit
 import gleeunit/should
 import util/list.{index}
-
-pub fn main() {
-  gleeunit.main()
-}
 
 pub fn index_test() {
   index(of: "a", in: ["a", "b", "c"])

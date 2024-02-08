@@ -1,11 +1,6 @@
 import deck.{compare} as d
 import gleam/order
-import gleeunit
 import gleeunit/should
-
-pub fn main() {
-  gleeunit.main()
-}
 
 pub fn compare_test() {
   let cas = d.Card(d.Ace, d.Spades)
