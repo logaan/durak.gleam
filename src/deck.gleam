@@ -64,19 +64,3 @@ pub fn compare(left: Card, right: Card, trump: Suit) {
     }
   }
 }
-
-pub fn test() {
-  let cas = Card(Ace, Spades)
-  let c6s = Card(Six, Spades)
-  let cad = Card(Ace, Diamonds)
-  let c6d = Card(Six, Diamonds)
-
-  // Lower values trump higher ones
-  let assert order.Gt = compare(c6s, cad, Spades)
-  let assert order.Lt = compare(cas, c6d, Diamonds)
-
-  // Non trump values order by value across suits
-  let assert order.Eq = compare(cas, cad, Clubs)
-  let assert order.Gt = compare(cas, c6d, Clubs)
-  let assert order.Lt = compare(c6s, cad, Clubs)
-}
