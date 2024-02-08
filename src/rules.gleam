@@ -14,7 +14,7 @@ const attacker_has_card = "The attacker does not have that card"
 
 const card_is_already_out = "The attacking card has not previously been used to attack or defend"
 
-pub fn can_first_attack(game: Game, with: Card) {
+pub fn can_start_attack(game: Game, with: Card) {
   v.check(attacker_has_card, set.contains(game.attacker, with))
 }
 

@@ -4,7 +4,7 @@ import deck.{
   Spades, Ten,
 }
 import game.{TwoPlayerGame}
-import game_states.{Defend, attack, defend, new_game, subsiquent_attack}
+import game_states.{Defend, defend, new_game, start_attack, subsiquent_attack}
 import gleam/result.{then}
 import gleam/set
 import gleam/dict
@@ -13,7 +13,7 @@ import gleam/option.{None, Some}
 pub fn example_game_test() {
   deck.new_deck()
   |> new_game()
-  |> attack(Card(deck.Ten, deck.Spades))
+  |> start_attack(Card(deck.Ten, deck.Spades))
   |> then(fn(game) {
     defend(game, Card(deck.Ten, deck.Spades), Card(deck.Ace, deck.Clubs))
   })
