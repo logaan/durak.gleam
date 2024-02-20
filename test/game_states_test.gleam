@@ -4,7 +4,7 @@ import deck.{
   Spades, Ten,
 }
 import game.{TwoPlayerGame}
-import game_states.{Defend, defend, join_attack, start_attack, start_game}
+import game_states.{defend, join_attack, pass_defence, start_attack, start_game}
 import gleam/result.{then}
 import gleam/set
 import gleam/dict
@@ -23,7 +23,8 @@ pub fn example_game_test() {
     )
   })
   |> then(fn(game) { join_attack(game, Card(deck.Ace, deck.Spades)) })
-  |> should.equal(Ok(Defend(TwoPlayerGame(
+  |> then(fn(game) { Ok(pass_defence(game)) })
+  |> should.equal(Ok(game_states.JoinAttack(TwoPlayerGame(
     [
       Card(Jack, Clubs),
       Card(Ten, Clubs),

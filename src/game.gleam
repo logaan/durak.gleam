@@ -69,3 +69,20 @@ pub fn values_already_out(game: Game) {
     },
   )
 }
+
+pub fn end_turn(game: Game) {
+  todo
+  // if there are undefended attacks: Defender draws
+  // otherwise: Clear attack
+  //
+  // Draw cards
+  // Swap players
+
+  TwoPlayerGame(
+    talon: game.talon,
+    trump: game.trump,
+    attacker: game.defender,
+    defender: game.attacker,
+    attack: dict.new(),
+  )
+}
