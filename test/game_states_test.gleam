@@ -4,7 +4,9 @@ import deck.{
   Spades, Ten,
 }
 import game.{TwoPlayerGame}
-import game_states.{defend, join_attack, pass_defence, start_attack, start_game}
+import game_states.{
+  defend, join_attack, pass_attack, pass_defence, start_attack, start_game,
+}
 import gleam/result.{then}
 import gleam/set
 import gleam/dict
@@ -24,10 +26,9 @@ pub fn example_game_test() {
   })
   |> then(fn(game) { join_attack(game, Card(deck.Ace, deck.Spades)) })
   |> then(fn(game) { Ok(pass_defence(game)) })
-  |> should.equal(Ok(game_states.JoinAttack(TwoPlayerGame(
+  |> then(fn(game) { Ok(pass_attack(game)) })
+  |> should.equal(Ok(game_states.StartAttack(TwoPlayerGame(
     [
-      Card(Jack, Clubs),
-      Card(Ten, Clubs),
       Card(Nine, Clubs),
       Card(Eight, Clubs),
       Card(Seven, Clubs),
@@ -57,6 +58,8 @@ pub fn example_game_test() {
       Card(King, Spades),
       Card(Nine, Spades),
       Card(Queen, Spades),
+      Card(Jack, Clubs),
+      Card(Ten, Clubs),
     ]),
     set.from_list([
       Card(Eight, Spades),
@@ -64,10 +67,10 @@ pub fn example_game_test() {
       Card(Queen, Clubs),
       Card(Seven, Spades),
       Card(Six, Spades),
+      Card(Ace, Spades),
+      Card(Ten, Spades),
+      Card(Ace, Clubs),
     ]),
-    dict.from_list([
-      #(Card(Ace, Spades), None),
-      #(Card(Ten, Spades), Some(Card(Ace, Clubs))),
-    ]),
+    dict.from_list([]),
   ))))
 }

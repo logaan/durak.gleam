@@ -1,5 +1,5 @@
 import deck.{type Card, type Deck, type Suit, Card}
-import gleam/set
+import gleam/set.{type Set}
 import gleam/option.{type Option, None, Some}
 import gleam/dict
 import gleam/list
@@ -70,19 +70,72 @@ pub fn values_already_out(game: Game) {
   )
 }
 
-pub fn end_turn(game: Game) {
-  todo
-  // if there are undefended attacks: Defender draws
-  // otherwise: Clear attack
-  //
-  // Draw cards
-  // Swap players
+fn successful_defence(game: Game) -> Bool {
+  game.attack
+  |> dict.values()
+  |> list.all(fn(v) { option.is_some(v) })
+}
+
+fn all_cards_in_attack(game: Game) -> Set(Card) {
+  let attacks = dict.keys(game.attack)
+  let defences =
+    game.attack
+    |> dict.values()
+    |> list.filter_map(fn(o) { option.to_result(o, "Undefended") })
+
+  set.from_list(list.append(attacks, defences))
+}
+
+fn defender_draws_unless_successful(game: Game, defender_won: Bool) -> Game {
+  let new_defender_hand = case defender_won {
+    True -> game.defender
+    False -> set.union(game.defender, all_cards_in_attack(game))
+  }
+
+  TwoPlayerGame(..game, defender: new_defender_hand, attack: dict.new())
+}
+
+fn draw_to_hand(talon: Deck, cards_to_draw: Int, hand: Hand) {
+  #(
+    list.take(talon, cards_to_draw)
+    |> set.from_list()
+    |> set.union(hand),
+    list.drop(talon, cards_to_draw),
+  )
+}
+
+fn restock_hands(game: Game) -> Game {
+  let attacker_cards_to_draw = 6 - set.size(game.attacker)
+  let defender_cards_to_draw = 6 - set.size(game.defender)
+
+  let #(new_attacker, new_talon) =
+    draw_to_hand(game.talon, attacker_cards_to_draw, game.attacker)
+  let #(new_defender, new_talon) =
+    draw_to_hand(new_talon, defender_cards_to_draw, game.defender)
 
   TwoPlayerGame(
-    talon: game.talon,
-    trump: game.trump,
-    attacker: game.defender,
-    defender: game.attacker,
-    attack: dict.new(),
+    ..game,
+    talon: new_talon,
+    attacker: new_attacker,
+    defender: new_defender,
   )
+}
+
+fn switch_defender(game: Game, defender_won: Bool) -> Game {
+  case defender_won {
+    True ->
+      TwoPlayerGame(..game, attacker: game.defender, defender: game.attacker)
+    False -> game
+  }
+}
+
+// TODO: Winner detection needs to happen after every attack and defence. If the
+// person who just acted has an empty hand then they win (2p game).
+pub fn end_turn(game: Game) {
+  let defender_won = successful_defence(game)
+
+  game
+  |> defender_draws_unless_successful(defender_won)
+  |> restock_hands()
+  |> switch_defender(defender_won)
 }

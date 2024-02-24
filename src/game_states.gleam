@@ -3,14 +3,18 @@ import game.{type Game} as g
 import util/validate as v
 import rules
 
+// TODO: Need a game over state with a loser
+
 pub type StartAttack {
   StartAttack(Game)
 }
 
+// TODO: Need a second case here for defender winning
 pub type Defend {
   Defend(Game)
 }
 
+// TODO: Need a second case here for attacker winning
 pub type JoinAttack {
   JoinAttack(Game)
 }
