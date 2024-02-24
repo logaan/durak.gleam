@@ -28,7 +28,7 @@ pub fn example_game_test() {
   |> then(fn(game) { Ok(pass_defence(game)) })
   |> then(fn(game) { Ok(pass_attack(game)) })
   |> should.equal(Ok(game_states.StartAttack(TwoPlayerGame(
-    [
+    talon: [
       Card(Nine, Clubs),
       Card(Eight, Clubs),
       Card(Seven, Clubs),
@@ -52,8 +52,8 @@ pub fn example_game_test() {
       Card(Seven, Diamonds),
       Card(Six, Diamonds),
     ],
-    Diamonds,
-    set.from_list([
+    trump: Diamonds,
+    attacker: set.from_list([
       Card(Jack, Spades),
       Card(King, Spades),
       Card(Nine, Spades),
@@ -61,7 +61,7 @@ pub fn example_game_test() {
       Card(Jack, Clubs),
       Card(Ten, Clubs),
     ]),
-    set.from_list([
+    defender: set.from_list([
       Card(Eight, Spades),
       Card(King, Clubs),
       Card(Queen, Clubs),
@@ -71,6 +71,6 @@ pub fn example_game_test() {
       Card(Ten, Spades),
       Card(Ace, Clubs),
     ]),
-    dict.from_list([]),
+    attack: dict.from_list([]),
   ))))
 }
