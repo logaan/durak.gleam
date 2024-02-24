@@ -3,7 +3,7 @@ import gleam/order
 import gleam/int
 import util/list.{index} as _
 
-pub type Value {
+pub type Rank {
   Ace
   King
   Queen
@@ -23,7 +23,7 @@ pub type Suit {
 }
 
 pub type Card {
-  Card(value: Value, suit: Suit)
+  Card(rank: Rank, suit: Suit)
 }
 
 pub type Deck =
@@ -31,12 +31,12 @@ pub type Deck =
 
 const suits = [Spades, Clubs, Hearts, Diamonds]
 
-const values = [Ace, King, Queen, Jack, Ten, Nine, Eight, Seven, Six]
+const ranks = [Ace, King, Queen, Jack, Ten, Nine, Eight, Seven, Six]
 
 pub fn new_deck() {
   list.flat_map(
     suits,
-    fn(suit) { list.map(values, fn(value) { Card(value, suit) }) },
+    fn(suit) { list.map(ranks, fn(rank) { Card(rank, suit) }) },
   )
 }
 
@@ -53,13 +53,13 @@ pub fn compare(left: Card, right: Card, trump: Suit) {
     Card(_, ls), Card(_, rs), t if ls == t && rs != t -> order.Gt
     // Right trump wins
     Card(_, ls), Card(_, rs), t if ls != t && rs == t -> order.Lt
-    // Same value (but neither is a trump) is equal
+    // Same rank (but neither is a trump) is equal
     // This case might actually be covered by the one below
     Card(lv, _), Card(rv, _), _ if lv == rv -> order.Eq
-    // Otherwise compare the values
+    // Otherwise compare the ranks
     Card(lv, _), Card(rv, _), _ -> {
-      let assert Ok(lindex) = index(of: lv, in: values)
-      let assert Ok(rindex) = index(of: rv, in: values)
+      let assert Ok(lindex) = index(of: lv, in: ranks)
+      let assert Ok(rindex) = index(of: rv, in: ranks)
       order.negate(int.compare(lindex, rindex))
     }
   }

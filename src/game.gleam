@@ -55,16 +55,16 @@ pub fn move_card_to_defend(
   )
 }
 
-pub fn values_already_out(game: Game) {
+pub fn ranks_already_out(game: Game) {
   dict.fold(
     over: game.attack,
     from: set.new(),
-    with: fn(already_out, key, value) {
-      let already_out = set.insert(already_out, key.value)
+    with: fn(already_out, key, rank) {
+      let already_out = set.insert(already_out, key.rank)
 
-      case value {
+      case rank {
         None -> already_out
-        Some(card) -> set.insert(already_out, card.value)
+        Some(card) -> set.insert(already_out, card.rank)
       }
     },
   )

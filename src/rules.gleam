@@ -1,4 +1,4 @@
-import game.{type Game, values_already_out}
+import game.{type Game, ranks_already_out}
 import deck.{type Card}
 import gleam/dict
 import gleam/set
@@ -22,7 +22,7 @@ pub fn can_join_attack(game: Game, with: Card) {
   v.check(attacker_has_card, set.contains(game.attacker, with))
   |> v.and(
     card_is_already_out,
-    fn() { set.contains(values_already_out(game), with.value) },
+    fn() { set.contains(ranks_already_out(game), with.rank) },
   )
 }
 
