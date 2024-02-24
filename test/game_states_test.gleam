@@ -26,7 +26,7 @@ pub fn example_game_test() {
   |> then(fn(game) { join_attack(game, Card(deck.Ace, deck.Spades)) })
   |> then(fn(game) { Ok(pass_defence(game)) })
   |> then(fn(game) { Ok(pass_attack(game)) })
-  |> should.equal(Ok(game_states.StartAttack(TwoPlayerGame(
+  |> should.equal(Ok(game_states.AttackerMustChooseAttack(TwoPlayerGame(
     talon: [
       Card(Nine, Clubs),
       Card(Eight, Clubs),

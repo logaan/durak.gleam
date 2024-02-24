@@ -131,7 +131,7 @@ fn switch_defender(game: Game, defender_won: Bool) -> Game {
 
 // TODO: Winner detection needs to happen after every attack and defence. If the
 // person who just acted has an empty hand then they win (2p game).
-pub fn end_turn(game: Game) {
+pub fn end_round(game: Game) {
   let defender_won = successful_defence(game)
 
   game
