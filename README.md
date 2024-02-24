@@ -20,6 +20,6 @@ gleam shell # Run an Erlang shell
 - [x] Further attacks
 - [x] Find a better way to do validations
 - [x] Seperate transformations from rules
-- [ ] No attacks past 6
-- [ ] End turn
-- [ ] Start next turn
+- [x] No attacks past 6
+- [x] End turn
+- [x] Start next turn

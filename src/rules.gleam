@@ -14,6 +14,8 @@ const attacker_has_card = "The attacker does not have that card"
 
 const card_is_already_out = "The attacking card has not previously been used to attack or defend"
 
+const too_many_attacks = "6 attacks have already been made"
+
 pub fn can_start_attack(game: Game, with: Card) {
   v.check(attacker_has_card, set.contains(game.attacker, with))
 }
@@ -24,6 +26,7 @@ pub fn can_join_attack(game: Game, with: Card) {
     card_is_already_out,
     fn() { set.contains(ranks_already_out(game), with.rank) },
   )
+  |> v.and(too_many_attacks, fn() { dict.size(game.attack) < 6 })
 }
 
 pub fn can_defend(in game: Game, against attacking: Card, with defending: Card) {
