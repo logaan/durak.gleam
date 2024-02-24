@@ -10,7 +10,6 @@ import game_states.{
 import gleam/result.{then}
 import gleam/set
 import gleam/dict
-import gleam/option.{None, Some}
 
 pub fn example_game_test() {
   let deck = deck.new_deck()
